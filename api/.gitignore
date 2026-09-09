@@ -1,0 +1,7 @@
+# Prisma
+prisma/*.db
+prisma/*.sqlite
+prisma/migrations/
+
+# Backend temp files
+tmp/
