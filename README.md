@@ -1,91 +1,56 @@
-# 🐾 Responsible Pet Adoption Platform
+# 🐾 Responsible Pet Adoption Platform — Backend
 
-A modern, full‑stack web application designed to connect **NGOs, donors, and adopters** in a safe and transparent environment — promoting responsible pet adoption and improving the lives of animals in need.  
-Built with **React, TypeScript, Tailwind CSS, Node.js, Express, Zod, and PostgreSQL**.
-
----
-
-## 🌟 Project Overview
-
-This platform aims to simplify and encourage **responsible pet adoption**, providing a digital bridge between organizations that rescue animals and people looking to offer a loving home.  
-The system prioritizes animal welfare, transparency, and accessibility, helping reduce abandonment and supporting NGOs in their mission.
-
-### For NGOs & Donors
-- Publish animals available for adoption  
-- Increase visibility for rescued pets  
-- Communicate directly with potential adopters  
-- Promote events, campaigns, and fundraising initiatives  
-
-### For Adopters
-- Discover pets through advanced search and filtering  
-- Access detailed information about each animal (health, behavior, history)  
-- Contact NGOs safely through the platform  
-- Follow a clear, guided adoption process  
+Backend service for the Responsible Pet Adoption Platform — a system designed to connect NGOs, donors, and adopters through a secure and transparent adoption workflow.  
+Built with **Node.js, Express, TypeScript, Zod, JWT, PostgreSQL**, and optional **Prisma ORM**.
 
 ---
 
-## 🚀 Features
+## 🚀 Overview
 
-### 🔐 User Registration & Authentication
-- Secure sign‑up and login  
-- Role‑based access (adopter, donor, NGO)  
-- Form validation powered by **Zod**
-
-### 🐶 Animal Management
-- Register pets with full details: name, age, species, breed, size, behavior, description  
-- Upload photos and videos  
-- Track adoption status (available, in process, adopted)
-
-### 🔎 Advanced Search & Filters
-Filter animals by:
-- Species (dog/cat)  
-- Breed  
-- Age  
-- Size  
-- Behavior  
-- Location  
-
-### 📨 Adoption Workflow
-- Users express interest in a pet  
-- NGOs receive notifications  
-- Secure messaging between adopters and NGOs  
-- Visit scheduling  
-- Final adoption approval  
+This backend provides a robust REST API that powers the entire adoption platform.  
+It handles authentication, user roles, animal management, NGO operations, messaging, and the full adoption workflow.
 
 ---
 
 ## 🧱 Tech Stack
 
-### Front-end
-- React.js  
-- TypeScript  
-- Tailwind CSS  
-- React Query  
-- Zod  
-- Zustand / Context API  
-
-### Back-end
 - Node.js  
-- Express  
-- Zod validation  
-- JWT authentication  
-- PostgreSQL  
-- Prisma ORM (optional)
+- Express
+- TypeScript
+- Zod (schema validation)
+- JWT Authentication
+- PostgreSQL
+- Prisma ORM
+- Multer (file uploads)
+- Swagger (API documentation)
 
 ---
 
-## 🗂️ Project Structure
+## 📌 Core Features
 
-### Front-end
-src/
-components/
-pages/
-hooks/
-store/
-services/
-utils/
+### 🔐 Authentication & Authorization
+- Secure JWT-based login
+- Zod validation for all payloads
 
-### Back-end
+### 🐶 Animal Management
+- CRUD operations for pets
+- Upload photos/videos  
+- Status tracking (available, in process, adopted)
+
+### 🔎 Search & Filters
+- Species, breed, age, size, behavior, location  
+- Pagination and sorting
+
+### 📨 Adoption Workflow
+- Express interest in a pet  
+- User receives notification  
+- Secure messaging  
+- Visit scheduling  
+- Adoption approval
+
+---
+
+## 📂 Project Structure
 src/
 controllers/
 services/
@@ -93,37 +58,29 @@ repositories/
 models/
 middlewares/
 routes/
+utils/
 
 
 ---
 
-## 📅 Roadmap
+## 🔌 API Endpoints (Summary)
 
-- [ ] User registration & authentication  
-- [ ] NGO registration & management  
-- [ ] Animal CRUD  
-- [ ] Advanced filtering system  
-- [ ] Secure messaging  
-- [ ] Full adoption workflow  
-- [ ] NGO admin dashboard  
-- [ ] Deployment (Vercel + Render/Azure)
+- `/auth` — login, register  
+- `/user` — user profile
+- `/animals` — pet CRUD  
+- `/adoptions` — adoption workflow  
+- `/messages` — secure chat
 
 ---
 
-## 🤝 Contributing
+## 📄 License
 
-Contributions are welcome!  
-Feel free to open issues, submit pull requests, or suggest improvements.
+MIT License
 
 ---
 
 ## 📫 Contact
 
-**Mario Ohashi**  
-Curitiba, Brazil  
-Email: mario.ohashi@gmail.com
+**Mario Ohashi**
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=flat&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/marioohashi)
 
----
-
-## 🐕 “Adopt, don’t shop.”  
-This project supports responsible adoption and animal welfare.
