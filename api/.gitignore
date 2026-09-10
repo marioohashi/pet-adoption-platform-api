@@ -5,3 +5,5 @@ prisma/migrations/
 
 # Backend temp files
 tmp/
+
+node_modules/
