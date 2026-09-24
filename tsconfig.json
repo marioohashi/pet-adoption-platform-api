@@ -3,11 +3,14 @@
     "target": "ES2022",
     
     "lib": ["ES2023"],
+    "rootDir": "./src",
     "outDir": "./dist",
     "paths": {
       "@/*": ["./src/*"]
     },
 
+
+    
     "module": "Node16",
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
