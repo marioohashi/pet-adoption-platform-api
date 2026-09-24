@@ -39,7 +39,7 @@ class UsersController {
   async show(request: Request, response: Response) {
     const { id } = request.params
 
-    const user = await prisma.user.findUnique({ where: { id } })
+    const user = await prisma.user.findUnique({ where: { id: String(id) } })
 
     if (!user) {
       throw new AppError("Usuário não encontrado", 404)
