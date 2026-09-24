@@ -36,31 +36,53 @@ class AnimalsController {
 
   async index(request: Request, response: Response) {
     const querySchema = z.object({
-      name: z.string().optional().default(""),
+      species: z.string().optional(),
+      size: z.string().optional(),
+      sex: z.string().optional(),
+      age: z.string().optional(), // "0-2", "3-6", "11+"
       page: z.coerce.number().optional().default(1),
-      perPage: z.coerce.number().optional().default(10),
-    })
+      perPage: z.coerce.number().optional().default(9),
+    });
 
-    const { name, page, perPage } = querySchema.parse(request.query)
-    const skip = (page - 1) * perPage
+    const { species, size, sex, age, page, perPage } = querySchema.parse(request.query);
 
-    const animals = await prisma.animal.findMany({
-      skip,
-      take: perPage,
-      where: {
-        name: {
-          contains: name.trim(),
-          mode: "insensitive",
-        },
-      },
-      orderBy: { createdAt: "desc" },
-      include: { user: true },
-    })
+    const filters: any = {};
 
-    const totalRecords = await prisma.animal.count()
-    const totalPages = Math.ceil(totalRecords / perPage)
+    if (species) filters.species = species;
+    if (size) filters.size = size;
+    if (sex) filters.sex = sex;
 
-    response.json({
+    // Filtro de idade por faixa
+    if (age) {
+      const [min, max] = age.split("-");
+
+      if (max === "+") {
+        filters.age = { gte: Number(min) };
+      } else {
+        filters.age = {
+          gte: Number(min),
+          lte: Number(max),
+        };
+      }
+    }
+
+    const skip = (page - 1) * perPage;
+
+    const [animals, totalRecords] = await Promise.all([
+      prisma.animal.findMany({
+        skip,
+        take: perPage,
+        where: filters,
+        orderBy: { createdAt: "desc" },
+        include: { user: true },
+      }),
+
+      prisma.animal.count({ where: filters }),
+    ]);
+
+    const totalPages = Math.ceil(totalRecords / perPage);
+
+    return response.json({
       animals,
       pagination: {
         page,
@@ -68,7 +90,7 @@ class AnimalsController {
         totalRecords,
         totalPages: totalPages > 0 ? totalPages : 1,
       },
-    })
+    });
   }
 
   async show(request: Request, response: Response) {
