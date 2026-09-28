@@ -6,32 +6,48 @@ import { z } from "zod"
 const SpeciesEnum = z.enum(["cat", "dog", "other"])
 
 class AnimalsController {
+  async me(request: Request, response: Response) {
+    if (!request.user?.id) {
+      throw new AppError("Não autorizado", 401)
+    }
+
+    const animals = await prisma.animal.findMany({
+      where: { userId: request.user.id },
+      orderBy: { createdAt: "desc" },
+    })
+
+    return response.json(animals)
+  }
+
   async create(request: Request, response: Response) {
     if (!request.user?.id) {
       throw new AppError("Não autorizado", 401)
     }
 
     const bodySchema = z.object({
-      name: z.string().min(1),
+      name: z.string().min(1, "O nome do pet é obrigatório"),
       species: SpeciesEnum.default("other"),
       breed: z.string().optional(),
       age: z.number().optional(),
       size: z.string().optional(),
       sex: z.string().optional(),
       description: z.string().optional(),
+      photos: z.array(z.string()).optional().default([]),
       photo: z.string().optional(),
     })
 
     const data = bodySchema.parse(request.body)
+    const mainPhoto = data.photo || (data.photos.length > 0 ? data.photos[0] : null)
 
     const animal = await prisma.animal.create({
       data: {
         ...data,
+        photo: mainPhoto,
         userId: request.user.id,
       },
     })
 
-    response.status(201).json(animal)
+    return response.status(201).json(animal)
   }
 
   async index(request: Request, response: Response) {
@@ -39,30 +55,36 @@ class AnimalsController {
       species: z.string().optional(),
       size: z.string().optional(),
       sex: z.string().optional(),
-      age: z.string().optional(), // "0-2", "3-6", "11+"
+      age: z.string().optional(),
       page: z.coerce.number().optional().default(1),
       perPage: z.coerce.number().optional().default(9),
     });
 
     const { species, size, sex, age, page, perPage } = querySchema.parse(request.query);
-
     const filters: any = {};
 
     if (species) filters.species = species;
     if (size) filters.size = size;
     if (sex) filters.sex = sex;
 
-    // Filtro de idade por faixa
     if (age) {
-      const [min, max] = age.split("-");
-
-      if (max === "+") {
-        filters.age = { gte: Number(min) };
+      if (age === "puppy") {
+        filters.age = { lt: 12 };
+      } else if (age === "adult") {
+        filters.age = { gte: 12, lte: 84 };
+      } else if (age === "senior") {
+        filters.age = { gt: 84 };
+      } else if (age.endsWith("+")) {
+        const minMonths = Number(age.replace("+", ""));
+        if (!isNaN(minMonths)) filters.age = { gte: minMonths };
+      } else if (age.includes("-")) {
+        const [minStr, maxStr] = age.split("-");
+        const min = Number(minStr);
+        const max = Number(maxStr);
+        if (!isNaN(min) && !isNaN(max)) filters.age = { gte: min, lte: max };
       } else {
-        filters.age = {
-          gte: Number(min),
-          lte: Number(max),
-        };
+        const exactMonths = Number(age);
+        if (!isNaN(exactMonths)) filters.age = exactMonths;
       }
     }
 
@@ -76,7 +98,6 @@ class AnimalsController {
         orderBy: { createdAt: "desc" },
         include: { user: true },
       }),
-
       prisma.animal.count({ where: filters }),
     ]);
 
@@ -94,10 +115,7 @@ class AnimalsController {
   }
 
   async show(request: Request, response: Response) {
-    const paramsSchema = z.object({
-      id: z.string().uuid(),
-    })
-
+    const paramsSchema = z.object({ id: z.string().uuid("ID inválido") })
     const { id } = paramsSchema.parse(request.params)
 
     const animal = await prisma.animal.findUnique({
@@ -109,7 +127,7 @@ class AnimalsController {
       throw new AppError("Animal não encontrado", 404)
     }
 
-    response.json(animal)
+    return response.json(animal)
   }
 
   async update(request: Request, response: Response) {
@@ -117,10 +135,7 @@ class AnimalsController {
       throw new AppError("Não autorizado", 401)
     }
 
-    const paramsSchema = z.object({
-      id: z.string().uuid(),
-    })
-
+    const paramsSchema = z.object({ id: z.string().uuid("ID inválido") })
     const bodySchema = z.object({
       name: z.string().optional(),
       species: SpeciesEnum.optional(),
@@ -129,6 +144,7 @@ class AnimalsController {
       size: z.string().optional(),
       sex: z.string().optional(),
       description: z.string().optional(),
+      photos: z.array(z.string()).optional(),
       photo: z.string().optional(),
       status: z.string().optional(),
     })
@@ -146,12 +162,20 @@ class AnimalsController {
       throw new AppError("Você não tem permissão para modificar este animal", 403)
     }
 
+    let mainPhoto = data.photo;
+    if (data.photos) {
+      mainPhoto = data.photos.length > 0 ? data.photos[0] : "";
+    }
+
     const updated = await prisma.animal.update({
       where: { id },
-      data,
+      data: {
+        ...data,
+        ...(mainPhoto !== undefined && { photo: mainPhoto }),
+      },
     })
 
-    response.json(updated)
+    return response.json(updated)
   }
 
   async delete(request: Request, response: Response) {
@@ -159,10 +183,7 @@ class AnimalsController {
       throw new AppError("Não autorizado", 401)
     }
 
-    const paramsSchema = z.object({
-      id: z.string().uuid(),
-    })
-
+    const paramsSchema = z.object({ id: z.string().uuid("ID inválido") })
     const { id } = paramsSchema.parse(request.params)
 
     const animal = await prisma.animal.findUnique({ where: { id } })
@@ -177,7 +198,7 @@ class AnimalsController {
 
     await prisma.animal.delete({ where: { id } })
 
-    response.status(204).send()
+    return response.status(204).send()
   }
 }
 
