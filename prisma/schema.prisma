@@ -18,20 +18,27 @@ enum Species {
   other
 }
 
+enum VetType {
+  clinica
+  veterinario
+}
+
 model User {
-  id        String    @id @default(uuid())
+  id        String       @id @default(uuid())
   name      String
-  email     String    @unique
+  email     String       @unique
   password  String
-  role      UserRole  @default(user)
+  role      UserRole     @default(user)
   phone     String?
   avatar    String?
   bio       String?
   city      String?
   state     String?
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime?    @updatedAt @map("updated_at")
   animals   Animal[]
+  ngos      NGO[]        @relation("AdminNGOs")
+  vets      VetPartner[] @relation("AdminVets")
 }
 
 model Animal {
@@ -43,11 +50,46 @@ model Animal {
   size        String?
   sex         String?
   description String?
-  photos      String[] @default([]) // 🟢 Array de fotos (Base64 ou URLs)
-  photo       String?  @db.Text     // Mantido como foto principal/capa
+  photos      String[] @default([]) // Array de fotos
+  photo       String?  @db.Text     // Foto principal/capa
   status      String   @default("available")
   userId      String
   user        User     @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model NGO {
+  id          String   @id @default(uuid())
+  name        String
+  image       String   @db.Text
+  city        String
+  phone       String
+  website     String
+  description String?  @db.Text
+  userId      String   // Obrigatório: ID do Admin cadastrando
+  user        User     @relation("AdminNGOs", fields: [userId], references: [id], onDelete: Restrict)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("ngos")
+}
+
+model VetPartner {
+  id          String   @id @default(uuid())
+  name        String
+  type        VetType  // Utiliza o Enum criado acima
+  image       String   @db.Text
+  city        String
+  phone       String
+  address     String
+  hours       String
+  specialty   String
+  description String?  @db.Text
+  userId      String   // Obrigatório: ID do Admin cadastrando
+  user        User     @relation("AdminVets", fields: [userId], references: [id], onDelete: Restrict)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("vet_partners")
 }
