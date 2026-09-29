@@ -2,7 +2,7 @@ import { Router } from "express"
 
 import { usersRoutes } from "./users-routes"
 import { sessionsRoutes } from "./sessions-routes"
-import { animalsRoutes } from "./animals-routes"
+import { petsRoutes } from "./pets-routes"
 import { uploadsRoutes } from "./uploads-routes"
 import { ngoRoutes } from "./ngo-routes"
 import { vetRoutes } from "./vet-routes"
@@ -14,7 +14,7 @@ const routes = Router()
 // Rotas publicas.
 routes.use("/users", usersRoutes)
 routes.use("/sessions", sessionsRoutes)
-routes.use("/animals", animalsRoutes)
+routes.use("/pets", petsRoutes)
 routes.use("/ngos", ngoRoutes)
 routes.use("/vets", vetRoutes)
 

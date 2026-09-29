@@ -7,9 +7,6 @@
     "build": "tsc && tsc-alias",
     "start": "node dist/src/server.js"
   },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
-  },
   "keywords": [],
   "author": "",
   "license": "ISC",
