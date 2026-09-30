@@ -7,46 +7,134 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// --- ENUMS ---
+
 enum UserRole {
   user
   admin
 }
 
+enum Size {
+  small
+  medium
+  large
+}
+
 enum Species {
-  cat
   dog
+  cat
   other
 }
 
+enum Gender {
+  male
+  female
+}
+
+enum PetType {
+  adoption
+  lost     
+  found
+}
+
+enum PetStatus {
+  active   
+  resolved 
+  adopted 
+}
+
+enum VetType {
+  clinic
+  veterinarian
+}
+
+// --- MODELS ---
+
 model User {
-  id        String    @id @default(uuid())
+  id        String       @id @default(uuid())
   name      String
-  email     String    @unique
+  email     String       @unique
   password  String
-  role      UserRole  @default(user)
+  role      UserRole     @default(user)
   phone     String?
   avatar    String?
   bio       String?
   city      String?
   state     String?
-  createdAt DateTime  @default(now()) @map("created_at")
-  updatedAt DateTime? @updatedAt @map("updated_at")
-  animals   Animal[]
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime?    @updatedAt @map("updated_at")
+  
+  pets      Pet[]
+  ngos      NGO[]        @relation("AdminNGOs")
+  vets      VetPartner[] @relation("AdminVets")
+
+  @@map("users")
 }
 
-model Animal {
+model Pet {
+  id          String    @id @default(uuid())
+  name        String
+  species     Species   
+  breed       String?
+  age         Int?   
+  gender      Gender?   
+  size        Size?     
+  
+  type        PetType   
+  status      PetStatus @default(active)
+  
+  city        String
+  state       String
+  date        DateTime?
+  
+  contactName String    
+  phone       String    
+  
+  description String?   @db.Text
+  photo       String?
+  photos      String[]  @default([])
+  reward      String?  
+  
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("pets")
+}
+
+model NGO {
   id          String   @id @default(uuid())
   name        String
-  species     Species  @default(other)
-  breed       String?
-  age         Int?
-  size        String?
-  sex         String?
-  description String?
-  status      String   @default("available")
-  photo       String?
-  userId      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  user        User     @relation(fields: [userId], references: [id])
+  image       String   @db.Text
+  city        String
+  phone       String
+  website     String
+  description String?  @db.Text
+  userId      String   
+  user        User     @relation("AdminNGOs", fields: [userId], references: [id], onDelete: Restrict)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("ngos")
+}
+
+model VetPartner {
+  id          String   @id @default(uuid())
+  name        String
+  type        VetType  
+  image       String   @db.Text
+  city        String
+  phone       String
+  address     String
+  hours       String
+  specialty   String
+  description String?  @db.Text
+  userId      String   
+  user        User     @relation("AdminVets", fields: [userId], references: [id], onDelete: Restrict)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("vet_partners")
 }
