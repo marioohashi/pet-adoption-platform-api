@@ -17,7 +17,7 @@ enum UserRole {
 enum Size {
   small
   medium
-  big
+  large
 }
 
 enum Species {

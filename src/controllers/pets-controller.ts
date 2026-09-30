@@ -206,7 +206,7 @@ class PetsController {
         }
 
         const paramsSchema = z.object({ id: z.string().uuid("ID inválido") })
-        $({ id } = paramsSchema.parse(request.params)) // Mantendo compatível com a estrutura original
+        const { id } = paramsSchema.parse(request.params)
 
         const pet = await prisma.pet.findUnique({ where: { id } })
 
