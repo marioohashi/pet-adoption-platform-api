@@ -5,7 +5,7 @@ import { z } from "zod"
 
 // --- ZOD ENUMS ---
 const SpeciesEnum = z.enum(["dog", "cat", "other"])
-const SizeEnum = z.enum(["small", "medium", "large"]) // Ajustado "big" para "large" conforme o frontend
+const SizeEnum = z.enum(["small", "medium", "large"]) // Corrigido para aceitar apenas "large"
 const GenderEnum = z.enum(["male", "female"])
 const PetTypeEnum = z.enum(["adoption", "lost", "found"])
 const PetStatusEnum = z.enum(["active", "resolved", "adopted"])
@@ -27,14 +27,12 @@ class PetsController {
 
         const filters: any = {}
 
-        // Filtros básicos
         if (type) filters.type = type
         if (species) filters.species = species
         if (size) filters.size = size
         if (gender) filters.gender = gender
         if (city) filters.city = { contains: city, mode: "insensitive" }
 
-        // Busca textual (Nome, Raça ou Cidade)
         if (search) {
             filters.OR = [
                 { name: { contains: search, mode: "insensitive" } },
@@ -90,23 +88,24 @@ class PetsController {
         const bodySchema = z.object({
             name: z.string().min(1, "O nome do pet é obrigatório"),
             species: SpeciesEnum.default("dog"),
-            breed: z.string().optional(),
-            age: z.number().optional(),
-            gender: GenderEnum.optional(),
-            size: SizeEnum.optional(),
+            breed: z.string().optional().nullable(),
+            age: z.number().optional().nullable(),
+            gender: GenderEnum.optional().nullable(),
+            size: SizeEnum.optional().nullable(),
             type: PetTypeEnum.default("adoption"),
             city: z.string().min(1, "A cidade é obrigatória"),
             state: z.string().length(2, "Use a sigla do estado com 2 letras (ex: PR)"),
             contactName: z.string().min(1, "O nome de contato é obrigatório"),
             phone: z.string().min(1, "O telefone é obrigatório"),
-            description: z.string().optional(),
+            description: z.string().optional().nullable(),
             photos: z.array(z.string()).optional().default([]),
-            photo: z.string().optional(),
+            photo: z.string().optional().nullable(),
+            reward: z.string().optional().nullable(), // Adicionado no create
+            date: z.coerce.date().optional().nullable(), // Adicionado no create
         })
 
         const data = bodySchema.parse(request.body)
 
-        // Define a foto principal usando a lógica de prioridade (photo avulsa ou primeiro item do array)
         const mainPhoto = data.photo || (data.photos.length > 0 ? data.photos[0] : null)
 
         const pet = await prisma.pet.create({
@@ -124,6 +123,9 @@ class PetsController {
                 phone: data.phone,
                 description: data.description,
                 photos: data.photos,
+                photo: mainPhoto,
+                reward: data.reward, // Salva se houver
+                date: data.date,     // Salva se houver
                 userId: request.user.id,
             },
         })
@@ -156,19 +158,21 @@ class PetsController {
         const bodySchema = z.object({
             name: z.string().optional(),
             species: SpeciesEnum.optional(),
-            breed: z.string().optional(),
-            age: z.number().optional(),
-            gender: GenderEnum.optional(),
-            size: SizeEnum.optional(),
+            breed: z.string().optional().nullable(),
+            age: z.number().optional().nullable(),
+            gender: GenderEnum.optional().nullable(),
+            size: SizeEnum.optional().nullable(),
             type: PetTypeEnum.optional(),
             status: PetStatusEnum.optional(),
             city: z.string().optional(),
             state: z.string().length(2).optional(),
             contactName: z.string().optional(),
             phone: z.string().optional(),
-            description: z.string().optional(),
+            description: z.string().optional().nullable(),
             photos: z.array(z.string()).optional(),
-            photo: z.string().optional(),
+            photo: z.string().optional().nullable(),
+            reward: z.string().optional().nullable(),
+            date: z.coerce.date().optional().nullable()
         })
 
         const { id } = paramsSchema.parse(request.params)
@@ -196,7 +200,6 @@ class PetsController {
                 ...(mainPhoto !== undefined && { photo: mainPhoto }),
             },
         })
-
         return response.json(updated)
     }
 
@@ -224,4 +227,5 @@ class PetsController {
     }
 }
 
-export { PetsController }
+class PetsControllerExport extends PetsController { }
+export { PetsControllerExport as PetsController }
