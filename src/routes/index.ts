@@ -20,6 +20,5 @@ routes.use("/vets", vetRoutes)
 
 // Rotas privadas.
 routes.use(ensureAuthenticated)
-routes.use("/uploads", uploadsRoutes)
 
 export { routes }

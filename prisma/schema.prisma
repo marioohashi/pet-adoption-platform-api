@@ -107,12 +107,14 @@ model Pet {
 model NGO {
   id          String   @id @default(uuid())
   name        String
-  image       String   @db.Text
-  city        String
-  phone       String
-  website     String
+  image       String?   @db.Text
+  city        String?
+  state       String?
+  phone       String?
+  website     String?
+  pixKey    String?
   description String?  @db.Text
-  userId      String   
+  userId      String
   user        User     @relation("AdminNGOs", fields: [userId], references: [id], onDelete: Restrict)
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
@@ -123,13 +125,16 @@ model NGO {
 model VetPartner {
   id          String   @id @default(uuid())
   name        String
-  type        VetType  
-  image       String   @db.Text
-  city        String
-  phone       String
-  address     String
-  hours       String
-  specialty   String
+  type        VetType?
+  image       String?   @db.Text
+  city        String?
+  state       String?
+  phone       String?
+  address     String?
+  hours       String?
+  specialty   String?
+  crmv        String?
+  website     String?
   description String?  @db.Text
   userId      String   
   user        User     @relation("AdminVets", fields: [userId], references: [id], onDelete: Restrict)

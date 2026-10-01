@@ -6,12 +6,10 @@ import { ensureAdmin } from "@/middlewares/ensure-admin" // O middleware que val
 const ngoRoutes = Router()
 const ngoController = new NgoController()
 
-// Rota pública de listagem
 ngoRoutes.get("/", ngoController.index)
 
-// Rotas protegidas (Apenas Admin)
 ngoRoutes.post("/", ensureAuthenticated, ensureAdmin, ngoController.store)
 ngoRoutes.put("/:id", ensureAuthenticated, ensureAdmin, ngoController.update)
 ngoRoutes.delete("/:id", ensureAuthenticated, ensureAdmin, ngoController.delete)
 
-export { ngoRoutes }
+export { ngoRoutes }    
