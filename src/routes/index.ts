@@ -3,7 +3,6 @@ import { Router } from "express"
 import { usersRoutes } from "./users-routes"
 import { sessionsRoutes } from "./sessions-routes"
 import { petsRoutes } from "./pets-routes"
-import { uploadsRoutes } from "./uploads-routes"
 import { ngoRoutes } from "./ngo-routes"
 import { vetRoutes } from "./vet-routes"
 

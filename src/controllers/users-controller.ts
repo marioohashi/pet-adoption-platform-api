@@ -128,10 +128,11 @@ class UsersController {
   }
 
   async delete(request: Request, response: Response) {
-    const { id } = request.params
     const currentUserId = request.user?.id;
     const currentUserRole = request.user?.role;
-    const { id: targetUserId } = request.params;
+
+    // Força o parâmetro da rota a ser tratado estritamente como string (ou undefined)
+    const targetUserId = request.params.id as string | undefined;
 
     if (targetUserId && targetUserId !== currentUserId) {
       if (currentUserRole !== "admin") {
