@@ -92,7 +92,6 @@ class UsersController {
       },
     })
 
-    // Remove a senha antes de retornar para a sessão
     const { password: _, ...userWithoutPassword } = updatedUser
 
     return response.json(userWithoutPassword) // Retorna direto o objeto limpo para o updateSession(response.data) funcionar
@@ -129,16 +128,27 @@ class UsersController {
   }
 
   async delete(request: Request, response: Response) {
-    const userId = request.user?.id // ID seguro do token
+    const { id } = request.params
+    const currentUserId = request.user?.id;
+    const currentUserRole = request.user?.role;
+    const { id: targetUserId } = request.params;
 
-    const user = await prisma.user.findUnique({ where: { id: userId } })
-    if (!user) {
-      throw new AppError("Usuário não encontrado", 404)
+    if (targetUserId && targetUserId !== currentUserId) {
+      if (currentUserRole !== "admin") {
+        throw new AppError("Ação não autorizada.", 403);
+      }
     }
 
-    await prisma.user.delete({ where: { id: userId } }) // Deleta apenas o próprio usuário logado
+    const userIdToDelete = targetUserId || currentUserId;
 
-    return response.status(204).send()
+    const user = await prisma.user.findUnique({ where: { id: userIdToDelete } });
+    if (!user) {
+      throw new AppError("Utilizador não encontrado", 404);
+    }
+
+    await prisma.user.delete({ where: { id: userIdToDelete } });
+
+    return response.status(204).send();
   }
 }
 
