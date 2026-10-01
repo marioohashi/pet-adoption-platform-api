@@ -5,7 +5,6 @@ import { sessionsRoutes } from "./sessions-routes"
 import { petsRoutes } from "./pets-routes"
 import { ngoRoutes } from "./ngo-routes"
 import { vetRoutes } from "./vet-routes"
-
 import { ensureAuthenticated } from "@/middlewares/ensure-authenticated"
 
 const routes = Router()
